@@ -105,7 +105,20 @@
                 <field name="partner_nrc_no" optional="hide"/>
                 <field name="partner_email" optional="hide"/>
                 <field name="partner_phone" optional="hide"/>
-                <field name="refuse_reason_id" optional="show"/>
+                <field name="refuse_reason_id" optional="hide"/>
+                <field name="english_test_passed" optional="hide"/>
+                <field name="english_test_points" optional="hide"/>
+                <field name="english_test_rating" optional="hide"/>
+                <field name="ce_test_passed" optional="hide"/>
+                <field name="ce_test_points" optional="hide"/>
+                <field name="ce_test_rating" optional="hide"/>
+                <field name="employment_type" optional="hide"/>
+                <field name="job_id" optional="hide"/>
+                <field name="date_of_birth" optional="hide"/>
+                <field name="gender" optional="hide"/>
+                <field name="father_name" optional="hide"/>
+                <field name="mother_name" optional="hide"/>
+
             </tree>
         </field>
     </record>
@@ -124,7 +137,7 @@
                             type="object"
                             string="Create Employee"
                             class="btn-secondary"
-                            invisible="not is_hired_stage "
+                            invisible="not is_hired_stage"
                     />
 
                     <button name="action_refuse"
@@ -143,12 +156,14 @@
                 </header>
 
                 <sheet>
-                    <widget name="web_ribbon" title="Refused" bg_color="text-bg-danger"
-                            invisible="application_status != 'refused'"/>
-                    <widget name="web_ribbon" title="Hired" invisible="application_status != 'hired'"/>
                     <field name="application_status" invisible="1"/>
                     <field name="active" invisible="1"/>
                     <field name="is_hired_stage" invisible="1"/>
+
+                    <widget name="web_ribbon" title="Refused" bg_color="text-bg-danger"
+                            invisible="application_status != 'refused'"/>
+                    <widget name="web_ribbon" title="Hired" invisible="application_status != 'hired'"/>
+
 
                     <!-- TITLE -->
                     <div class="oe_title">
