@@ -17,6 +17,9 @@
                 <field name="message_attachment_count"/>
                 <field name="kanban_state"/>
                 <field name="application_status"/>
+                <field name="is_passed_stage"/>
+                <field name="is_hired_stage"/>
+
                 <progressbar field="kanban_state" colors='{"done": "success", "blocked": "danger"}'/>
 
                 <templates>
@@ -24,9 +27,25 @@
                         <!--                        <t t-log="record"/>-->
 
                         <div class="oe_kanban_card oe_kanban_global_click oe_applicant_kanban oe_semantic_html_override">
-                            <widget name="web_ribbon" title="Refused" bg_color="text-bg-danger"
+                            <widget name="web_ribbon" title="Refused"
+                                    bg_color="text-bg-danger"
                                     invisible="application_status != 'refused'"/>
-                            <widget name="web_ribbon" title="Hired" invisible="application_status != 'hired'"/>
+
+                            <widget name="web_ribbon" title="Exam Passed"
+                                    bg_color="text-bg-info"
+                                    invisible="application_status != 'exam_passed'"/>
+
+                            <widget name="web_ribbon" title="Interview Passed"
+                                    bg_color="text-bg-primary"
+                                    invisible="application_status != 'interview_passed'"/>
+
+                            <widget name="web_ribbon" title="Interview Failed"
+                                    bg_color="text-bg-danger"
+                                    invisible="application_status != 'interview_fail'"/>
+
+                            <widget name="web_ribbon" title="Hired"
+                                    bg_color="text-bg-success"
+                                    invisible="application_status != 'hired'"/>
 
                             <t t-if="record.website_published and record.website_published.raw_value">
                                 <div class="o_kanban_ribbon o_kanban_ribbon_success">
@@ -88,7 +107,6 @@
         </field>
     </record>
 
-
     <!-- LIST VIEW -->
     <record id="view_waaneiza_applicant_tree" model="ir.ui.view">
         <field name="name">waaneiza.applicant.tree</field>
@@ -138,13 +156,44 @@
                             string="Create Employee"
                             class="btn-secondary"
                             invisible="not is_hired_stage"
+                            groups="waaneiza_recruitment.group_waaneiza_recruitment_manager"
+                    />
+                    <button name="action_send_to_interviewer"
+                            type="object"
+                            string="Send To Interviewer"
+                            class="btn-secondary"
+                            invisible="not is_passed_stage or is_sent_to_interviewer == True"
+                            groups="waaneiza_recruitment.group_waaneiza_recruitment_manager"
                     />
 
+                    <button name="action_mark_interview_passed"
+                            type="object"
+                            string="Pass"
+                            class="btn-primary"
+                            groups="waaneiza_recruitment.group_waaneiza_interviewer"
+                            invisible="not is_sent_to_interviewer or application_status == 'interview_passed' or application_status == 'interview_fail' or application_status == 'refused'"/>
+
+                    <button name="action_mark_interview_failed"
+                            type="object"
+                            string="Fail"
+                            class="btn-secondary"
+                            groups="waaneiza_recruitment.group_waaneiza_interviewer"
+                            invisible="not is_sent_to_interviewer or application_status == 'interview_passed' or application_status == 'interview_fail' or application_status == 'refused'"/>
+
+                    <button name="action_confirm_next_stage"
+                            type="object"
+                            string="Confirm"
+                            class="btn-primary"
+                            invisible="not active"
+                            groups="waaneiza_recruitment.group_waaneiza_recruitment_manager"
+                    />
                     <button name="action_refuse"
                             type="object"
                             string="Refuse"
                             class="btn-secondary"
-                            invisible="not active" data-hotkey="d"
+                            invisible="not active"
+                            data-hotkey="d"
+                            groups="waaneiza_recruitment.group_waaneiza_recruitment_manager"
                     />
                     <button string="Restore" name="toggle_active" type="object" invisible="active" data-hotkey="x"/>
 
@@ -159,10 +208,28 @@
                     <field name="application_status" invisible="1"/>
                     <field name="active" invisible="1"/>
                     <field name="is_hired_stage" invisible="1"/>
+                    <field name="is_passed_stage" invisible="1"/>
+                    <field name="is_sent_to_interviewer" invisible="1"/>
 
-                    <widget name="web_ribbon" title="Refused" bg_color="text-bg-danger"
+                    <widget name="web_ribbon" title="Refused"
+                            bg_color="text-bg-danger"
                             invisible="application_status != 'refused'"/>
-                    <widget name="web_ribbon" title="Hired" invisible="application_status != 'hired'"/>
+
+                    <widget name="web_ribbon" title="Exam Passed"
+                            bg_color="text-bg-info"
+                            invisible="application_status != 'exam_passed'"/>
+
+                    <widget name="web_ribbon" title="Interview Passed"
+                            bg_color="text-bg-primary"
+                            invisible="application_status != 'interview_passed'"/>
+
+                    <widget name="web_ribbon" title="Interview Failed"
+                            bg_color="text-bg-danger"
+                            invisible="application_status != 'interview_fail'"/>
+
+                    <widget name="web_ribbon" title="Hired"
+                            bg_color="text-bg-success"
+                            invisible="application_status != 'hired'"/>
 
 
                     <!-- TITLE -->
@@ -357,6 +424,7 @@
             </form>
         </field>
     </record>
+
     <!-- SEARCH VIEW -->
     <record id="view_waaneiza_applicant_search" model="ir.ui.view">
         <field name="name">waaneiza.applicant.search</field>
@@ -364,8 +432,8 @@
         <field name="arch" type="xml">
             <search string="Applications">
                 <field name="name"
-                   string="Search"
-                   filter_domain="['|','|','|',
+                       string="Search"
+                       filter_domain="['|','|','|',
                        ('partner_name','ilike', self),
                        ('partner_email','ilike', self),
                        ('partner_phone','ilike', self),
@@ -413,7 +481,6 @@
             </search>
         </field>
     </record>
-
 
     <!-- ACTION -->
     <record id="action_waaneiza_applicant" model="ir.actions.act_window">
